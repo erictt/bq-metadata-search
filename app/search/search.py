@@ -144,7 +144,8 @@ class MetadataSearch:
     def advanced_search(
         self,
         terms: Dict[str, str],
-        project_id: str | None = None
+        project_id: str | None = None,
+        dataset_id: str | None = None
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Advanced search with specific filters.
         
@@ -152,6 +153,7 @@ class MetadataSearch:
             terms: Dict mapping field names to search terms.
                 Supported fields: name, description, type.
             project_id: Optional project ID to filter by.
+            dataset_id: Optional dataset ID to filter by.
             
         Returns:
             Dict with datasets, tables, and fields that match the query.
@@ -201,6 +203,9 @@ class MetadataSearch:
             
             if project_id:
                 table_query = table_query.filter(TableModel.project_id == project_id)
+                
+            if dataset_id:
+                table_query = table_query.filter(TableModel.dataset_id == dataset_id)
             
             conditions = []
             
@@ -235,6 +240,9 @@ class MetadataSearch:
             
             if project_id:
                 field_query = field_query.filter(FieldModel.project_id == project_id)
+                
+            if dataset_id:
+                field_query = field_query.filter(FieldModel.dataset_id == dataset_id)
             
             conditions = []
             

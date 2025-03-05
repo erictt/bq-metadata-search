@@ -3,13 +3,16 @@ Web routes for BigQuery metadata UI.
 """
 
 from fastapi import APIRouter, Request, Form, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from typing import Annotated
 import os
+import logging
 
 from app.storage.db import Database
 from app.search.search import MetadataSearch
+
+logger = logging.getLogger(__name__)
 
 # Create templates directory if it doesn't exist
 templates_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -104,14 +107,32 @@ async def search_page(
     )
 
 
+@web_router.get("/datasets")
+async def get_datasets(project_id: str | None = None):
+    """Get datasets for a project as JSON."""
+    if not project_id:
+        return JSONResponse(content=[])
+    
+    datasets = db.get_datasets(project_id=project_id)
+    # Log the datasets for debugging
+    logger.info(f"Fetched datasets for project {project_id}: {datasets}")
+    return JSONResponse(content=datasets)
+
+
 @web_router.get("/advanced-search", response_class=HTMLResponse)
 async def advanced_search_page(request: Request):
     """Advanced search page."""
     projects = db.get_projects()
+    datasets = []  # Empty list initially, will be populated via JavaScript
 
     return templates.TemplateResponse(
         "advanced_search.html",
-        {"request": request, "projects": projects, "results": {}},
+        {
+            "request": request, 
+            "projects": projects, 
+            "datasets": datasets,
+            "results": {}
+        },
     )
 
 
@@ -122,23 +143,34 @@ async def advanced_search_results(
     description: Annotated[str | None, Form(description="Description to search for")] = None,
     type: Annotated[str | None, Form(description="Type to filter by")] = None,
     project_id: Annotated[str | None, Form(description="Project ID to filter by")] = None,
+    dataset_id: Annotated[str | None, Form(description="Dataset ID to filter by")] = None,
 ):
     """Advanced search results."""
     projects = db.get_projects()
+    datasets = []
+    
+    if project_id:
+        datasets = db.get_datasets(project_id=project_id)
 
     terms = {"name": name or "", "description": description or "", "type": type or ""}
 
-    results = search_engine.advanced_search(terms=terms, project_id=project_id)
+    results = search_engine.advanced_search(
+        terms=terms, 
+        project_id=project_id,
+        dataset_id=dataset_id
+    )
 
     return templates.TemplateResponse(
         "advanced_search.html",
         {
             "request": request,
             "projects": projects,
+            "datasets": datasets,
             "name": name,
             "description": description,
             "type": type,
             "project_id": project_id,
+            "dataset_id": dataset_id,
             "results": results,
         },
     )

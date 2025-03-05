@@ -87,6 +87,8 @@ class TestMetadataSearch(unittest.TestCase):
         mock_field1.field_type = "STRING"
         mock_field1.description = "Description 1"
         mock_field1.mode = "NULLABLE"
+        mock_field1.friendly_name = "Field 1"
+        mock_field1.table_type = "TABLE"
         
         mock_field2 = MagicMock(spec=FieldModel)
         mock_field2.name = "field2"
@@ -97,6 +99,8 @@ class TestMetadataSearch(unittest.TestCase):
         mock_field2.field_type = "INTEGER"
         mock_field2.description = "Description 2"
         mock_field2.mode = "REQUIRED"
+        mock_field2.friendly_name = "Field 2"
+        mock_field2.table_type = "TABLE"
         
         mock_query = MagicMock()
         mock_query.filter.return_value = mock_query
@@ -114,6 +118,46 @@ class TestMetadataSearch(unittest.TestCase):
         self.assertEqual(result["fields"][0]["field_type"], "STRING")
         self.assertEqual(result["fields"][0]["description"], "Description 1")
         self.assertEqual(result["fields"][0]["mode"], "NULLABLE")
+        
+    @patch('app.search.search.Database')
+    def test_advanced_search_with_dataset(self, mock_db):
+        """Test advanced search with dataset filter."""
+        # Setup mock
+        mock_session = MagicMock()
+        mock_db.return_value.get_session.return_value.__enter__.return_value = mock_session
+        
+        mock_table1 = MagicMock(spec=TableModel)
+        mock_table1.id = "table1"
+        mock_table1.full_id = "project1.dataset1.table1"
+        mock_table1.dataset_id = "dataset1"
+        mock_table1.project_id = "project1"
+        mock_table1.friendly_name = "Table 1"
+        mock_table1.description = "Description 1"
+        mock_table1.table_type = "TABLE"
+        mock_table1.name = "table1"
+        mock_table1.table_id = "table1"
+        mock_table1.field_type = "STRING"
+        mock_table1.mode = "NULLABLE"  # Add this attribute
+        
+        mock_query = MagicMock()
+        mock_query.filter.return_value = mock_query
+        mock_query.all.return_value = [mock_table1]
+        
+        mock_session.query.return_value = mock_query
+        
+        # Execute
+        search = MetadataSearch()
+        result = search.advanced_search(
+            {"name": "table"},
+            project_id="project1",
+            dataset_id="dataset1"
+        )
+        
+        # Verify
+        self.assertEqual(len(result["tables"]), 1)
+        self.assertEqual(result["tables"][0]["id"], "table1")
+        self.assertEqual(result["tables"][0]["dataset_id"], "dataset1")
+        self.assertEqual(result["tables"][0]["project_id"], "project1")
 
 
 if __name__ == "__main__":

@@ -41,6 +41,7 @@ class AdvancedSearchQuery(BaseModel):
     description: str | None = None
     type: str | None = None
     project_id: str | None = None
+    dataset_id: str | None = None
 
     model_config = {
         "json_schema_extra": {
@@ -49,7 +50,8 @@ class AdvancedSearchQuery(BaseModel):
                     "name": "user",
                     "description": "customer",
                     "type": "table",
-                    "project_id": "my-project"
+                    "project_id": "my-project",
+                    "dataset_id": "my-dataset"
                 }
             ]
         }
@@ -150,4 +152,8 @@ async def advanced_search(query: AdvancedSearchQuery):
         "type": query.type or "",
     }
 
-    return search_engine.advanced_search(terms=terms, project_id=query.project_id)
+    return search_engine.advanced_search(
+        terms=terms, 
+        project_id=query.project_id,
+        dataset_id=query.dataset_id
+    )

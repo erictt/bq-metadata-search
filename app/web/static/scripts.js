@@ -24,4 +24,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Handle project selection in advanced search
+    const projectSelect = document.getElementById('project_id');
+    const datasetSelect = document.getElementById('dataset_id');
+    
+    if (projectSelect && datasetSelect) {
+        // Function to update datasets dropdown
+        const updateDatasets = async (projectId) => {
+            // Clear current options except the first one
+            while (datasetSelect.options.length > 1) {
+                datasetSelect.remove(1);
+            }
+            
+            // If no project selected, return
+            if (!projectId) {
+                return;
+            }
+            
+            try {
+                // Fetch datasets for the selected project
+                const response = await fetch(`/datasets?project_id=${projectId}`);
+                const datasets = await response.json();
+                
+                console.log('Fetched datasets:', datasets);
+                
+                // Add options for each dataset
+                datasets.forEach(dataset => {
+                    console.log('Processing dataset:', dataset);
+                    const option = document.createElement('option');
+                    option.value = dataset.id;
+                    option.textContent = dataset.id;
+                    datasetSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching datasets:', error);
+            }
+        };
+        
+        // Update datasets when project changes
+        projectSelect.addEventListener('change', function() {
+            console.log('Project changed to:', this.value);
+            updateDatasets(this.value);
+        });
+        
+        // Initial update if a project is already selected
+        if (projectSelect.value) {
+            updateDatasets(projectSelect.value);
+        }
+    }
 });

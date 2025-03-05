@@ -19,6 +19,12 @@ class TestBigQueryMetadataClient(unittest.TestCase):
     def test_list_datasets(self, mock_client):
         """Test listing datasets."""
         # Setup mock
+        mock_dataset_ref1 = MagicMock()
+        mock_dataset_ref1.dataset_id = "dataset1"
+        
+        mock_dataset_ref2 = MagicMock()
+        mock_dataset_ref2.dataset_id = "dataset2"
+        
         mock_dataset1 = MagicMock()
         mock_dataset1.dataset_id = "dataset1"
         mock_dataset1.friendly_name = "Dataset 1"
@@ -29,7 +35,8 @@ class TestBigQueryMetadataClient(unittest.TestCase):
         mock_dataset2.friendly_name = "Dataset 2"
         mock_dataset2.description = "Description 2"
         
-        mock_client.return_value.list_datasets.return_value = [mock_dataset1, mock_dataset2]
+        mock_client.return_value.list_datasets.return_value = [mock_dataset_ref1, mock_dataset_ref2]
+        mock_client.return_value.get_dataset.side_effect = [mock_dataset1, mock_dataset2]
         
         # Execute
         client = BigQueryMetadataClient("test-project")
@@ -47,6 +54,12 @@ class TestBigQueryMetadataClient(unittest.TestCase):
     def test_list_tables(self, mock_client):
         """Test listing tables."""
         # Setup mock
+        mock_table_ref1 = MagicMock()
+        mock_table_ref1.table_id = "table1"
+        
+        mock_table_ref2 = MagicMock()
+        mock_table_ref2.table_id = "table2"
+        
         mock_table1 = MagicMock()
         mock_table1.table_id = "table1"
         mock_table1.friendly_name = "Table 1"
@@ -59,7 +72,8 @@ class TestBigQueryMetadataClient(unittest.TestCase):
         mock_table2.description = "Description 2"
         mock_table2.table_type = "VIEW"
         
-        mock_client.return_value.list_tables.return_value = [mock_table1, mock_table2]
+        mock_client.return_value.list_tables.return_value = [mock_table_ref1, mock_table_ref2]
+        mock_client.return_value.get_table.side_effect = [mock_table1, mock_table2]
         
         # Execute
         client = BigQueryMetadataClient("test-project")

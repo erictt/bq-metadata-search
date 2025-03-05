@@ -9,7 +9,7 @@ pydantic==2.10.6
 python-multipart==0.0.20
 
 # Database and search
-sqlalchemy==2.0.28
+sqlalchemy==2.0.38
 psycopg2==2.9.10  # For PostgreSQL
 alembic==1.13.1  # For database migrations
 

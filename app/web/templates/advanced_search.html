@@ -2,6 +2,10 @@
 
 {% block title %}Advanced Search - BigQuery Metadata Search{% endblock %}
 
+{% block scripts %}
+<script src="/static/scripts.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-12">
@@ -41,6 +45,19 @@
                                     <option value="">All Projects</option>
                                     {% for project in projects %}
                                         <option value="{{ project }}" {% if project_id == project %}selected{% endif %}>{{ project }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="dataset_id" class="form-label">Dataset</label>
+                                <select class="form-select" id="dataset_id" name="dataset_id">
+                                    <option value="">All Datasets</option>
+                                    {% for dataset in datasets %}
+                                        <option value="{{ dataset.id }}" {% if dataset_id == dataset.id %}selected{% endif %}>{{ dataset.id }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
