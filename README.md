@@ -79,4 +79,4 @@ See [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) for detailed information about the 
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
