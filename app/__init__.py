@@ -1,0 +1,3 @@
+"""
+BigQuery Metadata Search application.
+"""

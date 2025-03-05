@@ -1,0 +1,78 @@
+/* BigQuery Metadata Search styles */
+
+/* Navbar customization */
+.navbar {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Search form */
+.search-form {
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Metadata headers */
+.metadata-header {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #333;
+}
+
+/* Table fields section */
+.table-fields {
+    margin-top: 20px;
+}
+
+/* Description text */
+.description {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* Cards */
+.card {
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Table type badge */
+.badge-table-type {
+    font-size: 0.8em;
+}
+
+/* List group item hover */
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Tables */
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Responsive table */
+.table-responsive {
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

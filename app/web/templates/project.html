@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Project: {{ project_id }} - BigQuery Metadata Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">{{ project_id }}</li>
+            </ol>
+        </nav>
+        
+        <h1 class="metadata-header">Project: {{ project_id }}</h1>
+        
+        <h2>Datasets</h2>
+        
+        {% if datasets %}
+            <div class="list-group">
+                {% for dataset in datasets %}
+                    <a href="/dataset/{{ project_id }}/{{ dataset.id }}" class="list-group-item list-group-item-action">
+                        <h5 class="mb-1">{{ dataset.id }}</h5>
+                        {% if dataset.friendly_name %}
+                            <h6 class="mb-1">{{ dataset.friendly_name }}</h6>
+                        {% endif %}
+                        {% if dataset.description %}
+                            <p class="mb-1 description">{{ dataset.description }}</p>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No datasets available in this project.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

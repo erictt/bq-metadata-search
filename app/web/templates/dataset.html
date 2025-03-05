@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset: {{ dataset_id }} - BigQuery Metadata Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/project/{{ project_id }}">{{ project_id }}</a></li>
+                <li class="breadcrumb-item active">{{ dataset_id }}</li>
+            </ol>
+        </nav>
+        
+        <h1 class="metadata-header">Dataset: {{ dataset_id }}</h1>
+        
+        <h2>Tables</h2>
+        
+        {% if tables %}
+            <div class="list-group">
+                {% for table in tables %}
+                    <a href="/table/{{ project_id }}/{{ dataset_id }}/{{ table.id }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ table.id }}</h5>
+                            {% if table.table_type %}
+                                <span class="badge bg-secondary badge-table-type">{{ table.table_type }}</span>
+                            {% endif %}
+                        </div>
+                        {% if table.friendly_name %}
+                            <h6 class="mb-1">{{ table.friendly_name }}</h6>
+                        {% endif %}
+                        {% if table.description %}
+                            <p class="mb-1 description">{{ table.description }}</p>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No tables available in this dataset.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

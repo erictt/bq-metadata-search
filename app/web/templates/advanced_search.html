@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Search - BigQuery Metadata Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="metadata-header">Advanced Search</h1>
+        
+        <div class="card search-form">
+            <div class="card-body">
+                <form action="/advanced-search" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ name or '' }}">
+                                <div class="form-text">Search for datasets, tables, or fields by name</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="description" name="description" value="{{ description or '' }}">
+                                <div class="form-text">Search in descriptions</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Type</label>
+                                <input type="text" class="form-control" id="type" name="type" value="{{ type or '' }}">
+                                <div class="form-text">Search by table type or field type</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="project_id" class="form-label">Project</label>
+                                <select class="form-select" id="project_id" name="project_id">
+                                    <option value="">All Projects</option>
+                                    {% for project in projects %}
+                                        <option value="{{ project }}" {% if project_id == project %}selected{% endif %}>{{ project }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+        
+        {% if name or description or type %}
+            <h2>Search Results</h2>
+            
+            <!-- Datasets results -->
+            {% if results.datasets %}
+                <h3>Datasets ({{ results.datasets|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for dataset in results.datasets %}
+                        <a href="/dataset/{{ dataset.project_id }}/{{ dataset.id }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ dataset.id }}</h5>
+                            <small class="text-muted">{{ dataset.project_id }}</small>
+                            {% if dataset.friendly_name %}
+                                <h6 class="mb-1">{{ dataset.friendly_name }}</h6>
+                            {% endif %}
+                            {% if dataset.description %}
+                                <p class="mb-1 description">{{ dataset.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Tables results -->
+            {% if results.tables %}
+                <h3>Tables ({{ results.tables|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for table in results.tables %}
+                        <a href="/table/{{ table.project_id }}/{{ table.dataset_id }}/{{ table.id }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ table.id }}</h5>
+                                {% if table.table_type %}
+                                    <span class="badge bg-secondary badge-table-type">{{ table.table_type }}</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ table.project_id }}.{{ table.dataset_id }}</small>
+                            {% if table.friendly_name %}
+                                <h6 class="mb-1">{{ table.friendly_name }}</h6>
+                            {% endif %}
+                            {% if table.description %}
+                                <p class="mb-1 description">{{ table.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Fields results -->
+            {% if results.fields %}
+                <h3>Fields ({{ results.fields|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for field in results.fields %}
+                        <a href="/table/{{ field.project_id }}/{{ field.dataset_id }}/{{ field.table_id }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ field.name }}</h5>
+                            <small class="text-muted">{{ field.project_id }}.{{ field.dataset_id }}.{{ field.table_id }}</small>
+                            <div class="d-flex mt-1">
+                                <span class="badge bg-primary me-2">{{ field.field_type }}</span>
+                                <span class="badge bg-secondary">{{ field.mode }}</span>
+                            </div>
+                            {% if field.description %}
+                                <p class="mb-1 mt-2 description">{{ field.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if not results.datasets and not results.tables and not results.fields %}
+                <div class="alert alert-info">
+                    No results found for the specified criteria.
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

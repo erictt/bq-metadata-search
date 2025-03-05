@@ -1,0 +1,3 @@
+"""
+BigQuery metadata extractor package.
+"""

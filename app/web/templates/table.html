@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Table: {{ table_id }} - BigQuery Metadata Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/project/{{ project_id }}">{{ project_id }}</a></li>
+                <li class="breadcrumb-item"><a href="/dataset/{{ project_id }}/{{ dataset_id }}">{{ dataset_id }}</a></li>
+                <li class="breadcrumb-item active">{{ table_id }}</li>
+            </ol>
+        </nav>
+        
+        {% if table %}
+            <h1 class="metadata-header">Table: {{ table.id }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Table Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Full ID</dt>
+                        <dd class="col-sm-9">{{ table.full_id }}</dd>
+                        
+                        {% if table.friendly_name %}
+                            <dt class="col-sm-3">Friendly Name</dt>
+                            <dd class="col-sm-9">{{ table.friendly_name }}</dd>
+                        {% endif %}
+                        
+                        {% if table.table_type %}
+                            <dt class="col-sm-3">Table Type</dt>
+                            <dd class="col-sm-9">{{ table.table_type }}</dd>
+                        {% endif %}
+                        
+                        {% if table.description %}
+                            <dt class="col-sm-3">Description</dt>
+                            <dd class="col-sm-9">{{ table.description }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+            
+            <h2>Fields</h2>
+            
+            {% if table.fields %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Mode</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for field in table.fields %}
+                                <tr>
+                                    <td><strong>{{ field.name }}</strong></td>
+                                    <td>{{ field.field_type }}</td>
+                                    <td>{{ field.mode }}</td>
+                                    <td>{{ field.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No fields available for this table.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-danger">
+                Table not found.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
