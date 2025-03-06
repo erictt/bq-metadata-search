@@ -2,7 +2,7 @@
 API endpoints for BigQuery metadata.
 """
 
-from fastapi import APIRouter, Query, Path, HTTPException
+from fastapi import APIRouter, Query, Path, HTTPException, status
 from typing import List, Dict, Any, Annotated
 from pydantic import BaseModel, Field
 
@@ -157,3 +157,53 @@ async def advanced_search(query: AdvancedSearchQuery):
         project_id=query.project_id,
         dataset_id=query.dataset_id
     )
+
+
+@api_router.delete("/datasets/{project_id}/{dataset_id}")
+async def delete_dataset(
+    project_id: Annotated[str, Path(description="Project ID")],
+    dataset_id: Annotated[str, Path(description="Dataset ID")],
+):
+    """Delete a dataset and all its associated tables and fields.
+
+    Args:
+        project_id: Project ID.
+        dataset_id: Dataset ID.
+    """
+    success = db.delete_dataset(dataset_id=dataset_id, project_id=project_id)
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Dataset {dataset_id} not found in project {project_id}"
+        )
+    
+    return {"message": f"Dataset {dataset_id} deleted successfully"}
+
+
+@api_router.delete("/tables/{project_id}/{dataset_id}/{table_id}")
+async def delete_table(
+    project_id: Annotated[str, Path(description="Project ID")],
+    dataset_id: Annotated[str, Path(description="Dataset ID")],
+    table_id: Annotated[str, Path(description="Table ID")],
+):
+    """Delete a table and all its associated fields.
+
+    Args:
+        project_id: Project ID.
+        dataset_id: Dataset ID.
+        table_id: Table ID.
+    """
+    success = db.delete_table(
+        dataset_id=dataset_id, 
+        table_id=table_id, 
+        project_id=project_id
+    )
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Table {table_id} not found in dataset {dataset_id}"
+        )
+    
+    return {"message": f"Table {table_id} deleted successfully"}

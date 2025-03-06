@@ -2,8 +2,8 @@
 Web routes for BigQuery metadata UI.
 """
 
-from fastapi import APIRouter, Request, Form, Query
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Request, Form, Query, status
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from typing import Annotated
 import os
@@ -61,6 +61,24 @@ async def dataset_details(request: Request, project_id: str, dataset_id: str):
     )
 
 
+@web_router.post("/dataset/{project_id}/{dataset_id}/delete")
+async def delete_dataset(project_id: str, dataset_id: str):
+    """Delete a dataset and all its associated tables and fields."""
+    success = db.delete_dataset(dataset_id=dataset_id, project_id=project_id)
+    
+    if not success:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": f"Dataset {dataset_id} not found in project {project_id}"}
+        )
+    
+    # Redirect to the project page
+    return RedirectResponse(
+        url=f"/project/{project_id}", 
+        status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
 @web_router.get(
     "/table/{project_id}/{dataset_id}/{table_id}", response_class=HTMLResponse
 )
@@ -79,6 +97,28 @@ async def table_details(
             "table_id": table_id,
             "table": table,
         },
+    )
+
+
+@web_router.post("/table/{project_id}/{dataset_id}/{table_id}/delete")
+async def delete_table(project_id: str, dataset_id: str, table_id: str):
+    """Delete a table and all its associated fields."""
+    success = db.delete_table(
+        dataset_id=dataset_id, 
+        table_id=table_id, 
+        project_id=project_id
+    )
+    
+    if not success:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": f"Table {table_id} not found in dataset {dataset_id}"}
+        )
+    
+    # Redirect to the dataset page
+    return RedirectResponse(
+        url=f"/dataset/{project_id}/{dataset_id}", 
+        status_code=status.HTTP_303_SEE_OTHER
     )
 
 

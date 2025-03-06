@@ -13,7 +13,36 @@
             </ol>
         </nav>
         
-        <h1 class="metadata-header">Dataset: {{ dataset_id }}</h1>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="metadata-header">Dataset: {{ dataset_id }}</h1>
+            <div>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteDatasetModal">
+                    Delete Dataset
+                </button>
+            </div>
+        </div>
+        
+        <!-- Delete Dataset Modal -->
+        <div class="modal fade" id="deleteDatasetModal" tabindex="-1" aria-labelledby="deleteDatasetModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteDatasetModalLabel">Confirm Dataset Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the dataset <strong>{{ dataset_id }}</strong> and all its tables?</p>
+                        <p class="text-danger">This action cannot be undone!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form action="/dataset/{{ project_id }}/{{ dataset_id }}/delete" method="post">
+                            <button type="submit" class="btn btn-danger">Delete Dataset</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <h2>Tables</h2>
         

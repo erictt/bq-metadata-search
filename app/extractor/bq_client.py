@@ -36,15 +36,40 @@ class BigQueryMetadataClient:
             True if the dataset should be skipped, False otherwise.
         """
         # Skip development, pre-production, data science, and log datasets
-        if (
-            dataset_id.endswith("_dev")
-            or dataset_id.endswith("_preprd")
-            or dataset_id.endswith("data_science")
-            or dataset_id.endswith("log_bq_queries")
-        ):
-            return True
+        # if (
+        #     dataset_id.endswith("_dev")
+        #     or dataset_id.endswith("_preprd")
+        #     or dataset_id.endswith("data_science")
+        #     or dataset_id.endswith("log_bq_queries")
+        # ):
+        #     return True
+        # return False
 
-        return False
+        # if (
+        #     (
+        #         dataset_id.startswith("cert_")
+        #         and (not dataset_id.endswith("_dev"))
+        #         and (not dataset_id.endswith("_preprd"))
+        #     )
+        #     or dataset_id == "conformed_dm"
+        #     or dataset_id == "payment_dm"
+        #     or dataset_id == "global_finance"
+        #     or dataset_id.startswith("paytments_")
+        # ):
+        #     return False
+        # return True
+        #
+
+        # if dataset_id.endswith("unified") and (not dataset_id.endswith("p7d_unified")):
+        #     return False
+
+        if (
+            dataset_id.startswith("salesforce")
+            and (not dataset_id.endswith("mirror"))
+            and (not dataset_id.endswith("history"))
+        ):
+            return False
+        return True
 
     def list_datasets(self) -> List[Dict[str, Any]]:
         """List all datasets in the project.

@@ -343,3 +343,89 @@ class Database:
                     for f in fields
                 ]
             }
+    
+    def delete_dataset(self, dataset_id: str, project_id: str) -> bool:
+        """Delete a dataset and all its associated tables and fields.
+        
+        Args:
+            dataset_id: The dataset ID.
+            project_id: The project ID.
+            
+        Returns:
+            True if the dataset was deleted, False otherwise.
+        """
+        with self.get_session() as session:
+            try:
+                # Find the dataset
+                dataset = session.query(DatasetModel).filter_by(
+                    dataset_name=dataset_id,
+                    project_id=project_id
+                ).first()
+                
+                if not dataset:
+                    return False
+                
+                # Get all tables in the dataset
+                tables = session.query(TableModel).filter_by(
+                    dataset_id=dataset_id,
+                    project_id=project_id
+                ).all()
+                
+                # Delete all fields associated with tables in this dataset
+                for table in tables:
+                    # Delete fields using table's full_id
+                    session.query(FieldModel).filter(
+                        FieldModel.full_id.like(f"{table.full_id}.%")
+                    ).delete(synchronize_session=False)
+                
+                # Delete all tables in the dataset
+                session.query(TableModel).filter_by(
+                    dataset_id=dataset_id,
+                    project_id=project_id
+                ).delete(synchronize_session=False)
+                
+                # Delete the dataset
+                session.delete(dataset)
+                session.commit()
+                return True
+            except Exception as e:
+                logger.error(f"Error deleting dataset {dataset_id}: {e}")
+                session.rollback()
+                return False
+    
+    def delete_table(self, dataset_id: str, table_id: str, project_id: str) -> bool:
+        """Delete a table and all its associated fields.
+        
+        Args:
+            dataset_id: The dataset ID.
+            table_id: The table ID.
+            project_id: The project ID.
+            
+        Returns:
+            True if the table was deleted, False otherwise.
+        """
+        with self.get_session() as session:
+            try:
+                # Find the table
+                table = session.query(TableModel).filter_by(
+                    dataset_id=dataset_id,
+                    table_name=table_id,
+                    project_id=project_id
+                ).first()
+                
+                if not table:
+                    return False
+                
+                # Delete all fields associated with this table
+                session.query(FieldModel).filter(
+                    FieldModel.full_id.like(f"{table.full_id}.%")
+                ).delete(synchronize_session=False)
+                
+                # Delete the table
+                session.delete(table)
+                session.commit()
+                return True
+            except Exception as e:
+                logger.error(f"Error deleting table {table_id}: {e}")
+                session.rollback()
+                return False

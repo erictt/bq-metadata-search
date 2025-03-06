@@ -25,6 +25,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Handle delete confirmation modals
+    const deleteDatasetModal = document.getElementById('deleteDatasetModal');
+    if (deleteDatasetModal) {
+        deleteDatasetModal.addEventListener('show.bs.modal', function (event) {
+            // You could add additional logic here if needed
+            console.log('Delete dataset modal opened');
+        });
+    }
+    
+    const deleteTableModal = document.getElementById('deleteTableModal');
+    if (deleteTableModal) {
+        deleteTableModal.addEventListener('show.bs.modal', function (event) {
+            // You could add additional logic here if needed
+            console.log('Delete table modal opened');
+        });
+    }
+    
     // Handle project selection in advanced search
     const projectSelect = document.getElementById('project_id');
     const datasetSelect = document.getElementById('dataset_id');
