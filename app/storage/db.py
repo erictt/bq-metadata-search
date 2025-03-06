@@ -81,7 +81,7 @@ class Database:
         
         with self.get_session() as session:
             try:
-                existing = session.query(DatasetModel).filter_by(id=dataset.id).first()
+                existing = session.query(DatasetModel).filter_by(dataset_name=dataset.id).first()
                 
                 if existing:
                     # Update existing record
@@ -94,7 +94,7 @@ class Database:
                 
                 session.commit()
             except IntegrityError as e:
-                logger.error(f"Error saving dataset {dataset.id}: {e}")
+                logger.error(f"Error saving dataset {dataset.id} ({dataset.full_id}): {e}")
                 session.rollback()
                 raise
     
@@ -108,7 +108,14 @@ class Database:
         
         with self.get_session() as session:
             try:
-                existing = session.query(TableModel).filter_by(id=table.id).first()
+                existing = session.query(TableModel).filter_by(full_id=table.full_id).first()
+                
+                if not existing:
+                    # Try by table_name and dataset_id for backward compatibility
+                    existing = session.query(TableModel).filter_by(
+                        table_name=table.id,
+                        dataset_id=table.dataset_id
+                    ).first()
                 
                 if existing:
                     # Update existing record
@@ -121,7 +128,7 @@ class Database:
                 
                 session.commit()
             except IntegrityError as e:
-                logger.error(f"Error saving table {table.id}: {e}")
+                logger.error(f"Error saving table {table.id} ({table.full_id}): {e}")
                 session.rollback()
                 raise
     
@@ -181,7 +188,7 @@ class Database:
             
             return [
                 {
-                    "id": ds.id,
+                    "id": ds.dataset_name,
                     "full_id": ds.full_id,
                     "project_id": ds.project_id,
                     "friendly_name": ds.friendly_name,
@@ -217,7 +224,7 @@ class Database:
             
             return [
                 {
-                    "id": t.id,
+                    "id": t.table_name,
                     "full_id": t.full_id,
                     "dataset_id": t.dataset_id,
                     "project_id": t.project_id,
@@ -254,7 +261,19 @@ class Database:
                 query = query.filter(FieldModel.dataset_id == dataset_id)
             
             if table_id:
-                query = query.filter(FieldModel.table_id == table_id)
+                # If we have all the components to build a full_id pattern, use that
+                if dataset_id and project_id:
+                    table_full_id = f"{project_id}.{dataset_id}.{table_id}"
+                    query = query.filter(FieldModel.full_id.like(f"{table_full_id}.%"))
+                elif dataset_id:
+                    # Try to get project_id from dataset
+                    dataset = session.query(DatasetModel).filter_by(dataset_name=dataset_id).first()
+                    if dataset:
+                        table_full_id = f"{dataset.project_id}.{dataset_id}.{table_id}"
+                        query = query.filter(FieldModel.full_id.like(f"{table_full_id}.%"))
+                else:
+                    # Fall back to direct table_id match if we can't build a full_id pattern
+                    query = query.filter(FieldModel.table_id == table_id)
             
             fields = query.all()
             
@@ -283,21 +302,30 @@ class Database:
             Table metadata with fields.
         """
         with self.get_session() as session:
+            # First try to find by id (for backward compatibility)
             table = session.query(TableModel).filter_by(
                 dataset_id=dataset_id, 
-                id=table_id
+                table_name=table_id
             ).first()
+            
+            # If not found, try to find by full_id
+            if not table:
+                full_id = f"{session.query(DatasetModel).filter_by(dataset_name=dataset_id).first().project_id}.{dataset_id}.{table_id}"
+                table = session.query(TableModel).filter_by(full_id=full_id).first()
             
             if not table:
                 return None
             
-            fields = session.query(FieldModel).filter_by(
-                dataset_id=dataset_id,
-                table_id=table_id
-            ).all()
+            # Get fields using table's full_id
+            fields = []
+            if table:
+                # Extract table_id part from full_id for backward compatibility
+                fields = session.query(FieldModel).filter(
+                    FieldModel.full_id.like(f"{table.full_id}.%")
+                ).all()
             
             return {
-                "id": table.id,
+                "id": table.table_name,
                 "full_id": table.full_id,
                 "dataset_id": table.dataset_id,
                 "project_id": table.project_id,

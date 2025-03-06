@@ -36,15 +36,15 @@ class TestMetadataSearch(unittest.TestCase):
         mock_session = MagicMock()
         mock_db.return_value.get_session.return_value.__enter__.return_value = mock_session
         
-        mock_dataset1 = MagicMock(spec=DatasetModel)
-        mock_dataset1.id = "dataset1"
+        mock_dataset1 = MagicMock()
+        mock_dataset1.dataset_name = "dataset1"
         mock_dataset1.full_id = "project1.dataset1"
         mock_dataset1.project_id = "project1"
         mock_dataset1.friendly_name = "Dataset 1"
         mock_dataset1.description = "Description 1"
         
-        mock_dataset2 = MagicMock(spec=DatasetModel)
-        mock_dataset2.id = "dataset2"
+        mock_dataset2 = MagicMock()
+        mock_dataset2.dataset_name = "dataset2"
         mock_dataset2.full_id = "project1.dataset2"
         mock_dataset2.project_id = "project1"
         mock_dataset2.friendly_name = "Dataset 2"
@@ -78,7 +78,7 @@ class TestMetadataSearch(unittest.TestCase):
         mock_session = MagicMock()
         mock_db.return_value.get_session.return_value.__enter__.return_value = mock_session
         
-        mock_field1 = MagicMock(spec=FieldModel)
+        mock_field1 = MagicMock()
         mock_field1.name = "field1"
         mock_field1.full_id = "project1.dataset1.table1.field1"
         mock_field1.table_id = "table1"
@@ -87,10 +87,8 @@ class TestMetadataSearch(unittest.TestCase):
         mock_field1.field_type = "STRING"
         mock_field1.description = "Description 1"
         mock_field1.mode = "NULLABLE"
-        mock_field1.friendly_name = "Field 1"
-        mock_field1.table_type = "TABLE"
         
-        mock_field2 = MagicMock(spec=FieldModel)
+        mock_field2 = MagicMock()
         mock_field2.name = "field2"
         mock_field2.full_id = "project1.dataset1.table1.field2"
         mock_field2.table_id = "table1"
@@ -99,8 +97,6 @@ class TestMetadataSearch(unittest.TestCase):
         mock_field2.field_type = "INTEGER"
         mock_field2.description = "Description 2"
         mock_field2.mode = "REQUIRED"
-        mock_field2.friendly_name = "Field 2"
-        mock_field2.table_type = "TABLE"
         
         mock_query = MagicMock()
         mock_query.filter.return_value = mock_query
@@ -126,18 +122,14 @@ class TestMetadataSearch(unittest.TestCase):
         mock_session = MagicMock()
         mock_db.return_value.get_session.return_value.__enter__.return_value = mock_session
         
-        mock_table1 = MagicMock(spec=TableModel)
-        mock_table1.id = "table1"
+        mock_table1 = MagicMock()
+        mock_table1.table_name = "table1"
         mock_table1.full_id = "project1.dataset1.table1"
         mock_table1.dataset_id = "dataset1"
         mock_table1.project_id = "project1"
         mock_table1.friendly_name = "Table 1"
         mock_table1.description = "Description 1"
         mock_table1.table_type = "TABLE"
-        mock_table1.name = "table1"
-        mock_table1.table_id = "table1"
-        mock_table1.field_type = "STRING"
-        mock_table1.mode = "NULLABLE"  # Add this attribute
         
         mock_query = MagicMock()
         mock_query.filter.return_value = mock_query

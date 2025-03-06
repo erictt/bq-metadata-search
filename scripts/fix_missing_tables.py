@@ -33,8 +33,9 @@ def get_missing_tables(db: Database) -> List[Tuple[str, str, str]]:
         query = text("""
             SELECT DISTINCT f.table_id, f.dataset_id, f.project_id
             FROM fields f
-            LEFT JOIN tables t ON f.table_id = t.id AND f.dataset_id = t.dataset_id
-            WHERE t.id IS NULL
+            LEFT JOIN tables t ON 
+                (f.project_id || '.' || f.dataset_id || '.' || f.table_id) = t.full_id
+            WHERE t.full_id IS NULL
         """)
         
         result = session.execute(query)

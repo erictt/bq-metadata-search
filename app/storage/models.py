@@ -48,7 +48,8 @@ class DatasetModel(Base):
     """SQLAlchemy model for datasets."""
     __tablename__ = "datasets"
     
-    id = Column(String(255), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    dataset_name = Column(String(255), nullable=False)  # Renamed from id
     full_id = Column(String(255), unique=True, nullable=False)
     project_id = Column(String(255), nullable=False)
     friendly_name = Column(String(255))
@@ -58,13 +59,15 @@ class DatasetModel(Base):
     
     __table_args__ = (
         Index("ix_datasets_project", "project_id"),
+        Index("ix_datasets_name", "dataset_name"),
+        Index("ix_datasets_full_id", "full_id"),
     )
     
     @classmethod
     def from_dataclass(cls, dataset: Dataset) -> "DatasetModel":
         """Create a model instance from a dataclass."""
         return cls(
-            id=dataset.id,
+            dataset_name=dataset.id,  # Map id to dataset_name
             full_id=dataset.full_id,
             project_id=dataset.project_id,
             friendly_name=dataset.friendly_name,
@@ -76,9 +79,10 @@ class TableModel(Base):
     """SQLAlchemy model for tables."""
     __tablename__ = "tables"
     
-    id = Column(String(255), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    table_name = Column(String(255), nullable=False)  # Renamed from id
     full_id = Column(String(255), unique=True, nullable=False)
-    dataset_id = Column(String(255), ForeignKey("datasets.id"), nullable=False)
+    dataset_id = Column(String(255), nullable=False)  # No longer a foreign key to datasets.id
     project_id = Column(String(255), nullable=False)
     friendly_name = Column(String(255))
     description = Column(Text)
@@ -89,13 +93,15 @@ class TableModel(Base):
     __table_args__ = (
         Index("ix_tables_dataset", "dataset_id"),
         Index("ix_tables_project", "project_id"),
+        Index("ix_tables_name", "table_name"),
+        Index("ix_tables_full_id", "full_id"),
     )
     
     @classmethod
     def from_dataclass(cls, table: Table) -> "TableModel":
         """Create a model instance from a dataclass."""
         return cls(
-            id=table.id,
+            table_name=table.id,  # Map id to table_name
             full_id=table.full_id,
             dataset_id=table.dataset_id,
             project_id=table.project_id,
@@ -110,10 +116,10 @@ class FieldModel(Base):
     __tablename__ = "fields"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255), nullable=False)
     full_id = Column(String(255), unique=True, nullable=False)
-    table_id = Column(String(255), ForeignKey("tables.id"), nullable=False)
-    dataset_id = Column(String(255), ForeignKey("datasets.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    table_id = Column(String(255), nullable=False)  # This is now table_name in TableModel
+    dataset_id = Column(String(255), nullable=False)  # This is now dataset_name in DatasetModel
     project_id = Column(String(255), nullable=False)
     field_type = Column(String(50))
     description = Column(Text)
@@ -126,6 +132,7 @@ class FieldModel(Base):
         Index("ix_fields_dataset", "dataset_id"),
         Index("ix_fields_project", "project_id"),
         Index("ix_fields_name", "name"),
+        Index("ix_fields_full_id", "full_id"),
     )
     
     @classmethod

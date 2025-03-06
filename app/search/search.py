@@ -57,7 +57,7 @@ class MetadataSearch:
                 for term in search_terms:
                     dataset_query = dataset_query.filter(
                         or_(
-                            DatasetModel.id.ilike(term),
+                            DatasetModel.dataset_name.ilike(term),
                             DatasetModel.friendly_name.ilike(term),
                             DatasetModel.description.ilike(term)
                         )
@@ -67,7 +67,7 @@ class MetadataSearch:
                 
                 result["datasets"] = [
                     {
-                        "id": ds.id,
+                        "id": ds.dataset_name,
                         "full_id": ds.full_id,
                         "project_id": ds.project_id,
                         "friendly_name": ds.friendly_name,
@@ -86,7 +86,8 @@ class MetadataSearch:
                 for term in search_terms:
                     table_query = table_query.filter(
                         or_(
-                            TableModel.id.ilike(term),
+                            TableModel.table_name.ilike(term),
+                            TableModel.full_id.ilike(term),
                             TableModel.friendly_name.ilike(term),
                             TableModel.description.ilike(term)
                         )
@@ -96,7 +97,7 @@ class MetadataSearch:
                 
                 result["tables"] = [
                     {
-                        "id": t.id,
+                        "id": t.table_name,
                         "full_id": t.full_id,
                         "dataset_id": t.dataset_id,
                         "project_id": t.project_id,
@@ -118,6 +119,7 @@ class MetadataSearch:
                     field_query = field_query.filter(
                         or_(
                             FieldModel.name.ilike(term),
+                            FieldModel.full_id.ilike(term),
                             FieldModel.description.ilike(term),
                             FieldModel.field_type.ilike(term)
                         )
@@ -178,7 +180,7 @@ class MetadataSearch:
             conditions = []
             
             if name_term:
-                conditions.append(DatasetModel.id.ilike(f"%{name_term}%"))
+                conditions.append(DatasetModel.dataset_name.ilike(f"%{name_term}%"))
             
             if description_term:
                 conditions.append(DatasetModel.description.ilike(f"%{description_term}%"))
@@ -189,7 +191,7 @@ class MetadataSearch:
                 
                 result["datasets"] = [
                     {
-                        "id": ds.id,
+                        "id": ds.dataset_name,
                         "full_id": ds.full_id,
                         "project_id": ds.project_id,
                         "friendly_name": ds.friendly_name,
@@ -210,7 +212,10 @@ class MetadataSearch:
             conditions = []
             
             if name_term:
-                conditions.append(TableModel.id.ilike(f"%{name_term}%"))
+                conditions.append(or_(
+                    TableModel.table_name.ilike(f"%{name_term}%"),
+                    TableModel.full_id.ilike(f"%{name_term}%")
+                ))
             
             if description_term:
                 conditions.append(TableModel.description.ilike(f"%{description_term}%"))
@@ -224,7 +229,7 @@ class MetadataSearch:
                 
                 result["tables"] = [
                     {
-                        "id": t.id,
+                        "id": t.table_name,
                         "full_id": t.full_id,
                         "dataset_id": t.dataset_id,
                         "project_id": t.project_id,
@@ -247,7 +252,10 @@ class MetadataSearch:
             conditions = []
             
             if name_term:
-                conditions.append(FieldModel.name.ilike(f"%{name_term}%"))
+                conditions.append(or_(
+                    FieldModel.name.ilike(f"%{name_term}%"),
+                    FieldModel.full_id.ilike(f"%{name_term}%")
+                ))
             
             if description_term:
                 conditions.append(FieldModel.description.ilike(f"%{description_term}%"))
