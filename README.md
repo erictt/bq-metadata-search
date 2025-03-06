@@ -2,6 +2,8 @@
 
 A tool for extracting and searching metadata from Google BigQuery projects.
 
+![screenshot](./docs/screenshot.png)
+
 ## Features
 
 - Extract table and field metadata from BigQuery projects
@@ -56,7 +58,7 @@ The easiest way to get started is using Docker:
 
 ## Usage
 
-See [USAGE.md](USAGE.md) for detailed usage instructions.
+See [./docs/USAGE.md](USAGE.md) for detailed usage instructions.
 
 ## Project Structure
 
