@@ -26,51 +26,6 @@ class BigQueryMetadataClient:
         self._table_cache = {}
         logger.info(f"Initialized BigQuery client for project {project_id}")
 
-    def should_skip_dataset(self, dataset_id: str) -> bool:
-        """Determine if a dataset should be skipped based on naming patterns.
-
-        Args:
-            dataset_id: The dataset ID to check.
-
-        Returns:
-            True if the dataset should be skipped, False otherwise.
-        """
-        # Skip development, pre-production, data science, and log datasets
-        # if (
-        #     dataset_id.endswith("_dev")
-        #     or dataset_id.endswith("_preprd")
-        #     or dataset_id.endswith("data_science")
-        #     or dataset_id.endswith("log_bq_queries")
-        # ):
-        #     return True
-        # return False
-
-        # if (
-        #     (
-        #         dataset_id.startswith("cert_")
-        #         and (not dataset_id.endswith("_dev"))
-        #         and (not dataset_id.endswith("_preprd"))
-        #     )
-        #     or dataset_id == "conformed_dm"
-        #     or dataset_id == "payment_dm"
-        #     or dataset_id == "global_finance"
-        #     or dataset_id.startswith("paytments_")
-        # ):
-        #     return False
-        # return True
-        #
-
-        # if dataset_id.endswith("unified") and (not dataset_id.endswith("p7d_unified")):
-        #     return False
-
-        if (
-            dataset_id.startswith("salesforce")
-            and (not dataset_id.endswith("mirror"))
-            and (not dataset_id.endswith("history"))
-        ):
-            return False
-        return True
-
     def list_datasets(self) -> List[Dict[str, Any]]:
         """List all datasets in the project.
 
@@ -84,9 +39,9 @@ class BigQueryMetadataClient:
             dataset_name = dataset_ref.dataset_id
 
             # Skip datasets based on naming patterns
-            if self.should_skip_dataset(dataset_name):
-                logger.info(f"Skipping dataset {dataset_name} based on naming pattern")
-                continue
+            # if self.should_skip_dataset(dataset_name):
+            #     logger.info(f"Skipping dataset {dataset_name} based on naming pattern")
+            #     continue
 
             # Get the full dataset to access all metadata including description
             dataset_id = f"{self.project_id}.{dataset_name}"
