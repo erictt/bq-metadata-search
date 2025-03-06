@@ -10,12 +10,11 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install uv and dependencies
-COPY pyproject.toml .
-RUN pip install --no-cache-dir uv && \
-    uv pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir uv
 
-# Copy application code
-COPY . .
+COPY . . 
+
+RUN uv pip install --no-cache-dir -e . --system
 
 # Expose port
 EXPOSE 8000
