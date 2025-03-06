@@ -4,7 +4,7 @@ This guide explains how to use the BigQuery Metadata Search application.
 
 ## Prerequisites
 
-1. Python 3.7 or higher
+1. Python 3.11 or higher
 2. Google Cloud SDK installed and configured
 3. Access to BigQuery projects you want to extract metadata from
 4. PostgreSQL (if using the Docker setup) or SQLite (for local development)
@@ -19,7 +19,8 @@ This guide explains how to use the BigQuery Metadata Search application.
 
 2. Install dependencies:
    ```
-   pip install -r requirements.txt
+   pip install uv
+   uv pip install -e .
    ```
 
 3. Set up Google Cloud credentials:
@@ -50,17 +51,74 @@ export DATABASE_URL=postgresql://username:password@localhost:5432/dbname
 
 ## Extracting Metadata
 
+### Using the Python Module Directly
+
 To extract metadata from a BigQuery project:
 
 ```
 python -m app.extractor.run --project=your-project-id
 ```
 
-Optional parameters:
-- `--output=output.json`: Save extracted metadata to a JSON file
-- `--no-db`: Skip saving to the database
+Full list of parameters:
+- `--project` or `-p`: (Required) GCP project ID to extract metadata from
+- `--output` or `-o`: (Optional) Save extracted metadata to a JSON file (e.g., `--output=metadata.json`)
+- `--no-db`: (Optional) Skip saving to the database
+- `--workers` or `-w`: (Optional) Number of worker threads for parallel processing (default: 4)
 
-You can extract metadata from multiple projects by running the command for each project.
+Example with all options:
+```
+python -m app.extractor.run --project=your-project-id --output=metadata.json --workers=8
+```
+
+### Using the Convenience Script
+
+For easier usage, you can use the provided shell script:
+
+```
+./scripts/extract-metadata.sh your-project-id [output-file.json] [workers]
+```
+
+Arguments:
+1. `PROJECT_ID`: (Required) The Google Cloud project ID to extract metadata from
+2. `OUTPUT_FILE`: (Optional) File to save metadata to (e.g., metadata.json)
+3. `WORKERS`: (Optional) Number of worker threads for parallel processing (default: 4)
+
+Example:
+```
+./scripts/extract-metadata.sh my-analytics-project metadata.json 8
+```
+
+### Using with Docker
+
+If you're using the Docker setup:
+
+```
+docker-compose exec app python -m app.extractor.run --project=your-project-id
+```
+
+Or use the convenience script which automatically detects if you're running in Docker:
+
+```
+./scripts/extract-metadata.sh your-project-id
+```
+
+### Extracting from Multiple Projects
+
+You can extract metadata from multiple projects by running the command for each project:
+
+```
+python -m app.extractor.run --project=project-1
+python -m app.extractor.run --project=project-2
+```
+
+Or with the script:
+
+```
+./scripts/extract-metadata.sh project-1
+./scripts/extract-metadata.sh project-2
+```
+
+The metadata from all projects will be stored in the same database, allowing you to search across all projects.
 
 ## Running the Application
 
