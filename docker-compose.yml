@@ -8,7 +8,7 @@ services:
       - google-creds:/app/credentials
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/service-account-key.json
-      - DATABASE_URL=postgresql://bqlookup:bqlookup_password@db:5432/bqlookup
+      - DATABASE_URL=postgresql://bq_metadata:bq_metadata_password@db:5432/bq_metadata
     depends_on:
       - db
     restart: unless-stopped
@@ -19,9 +19,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     environment:
-      - POSTGRES_USER=bqlookup
-      - POSTGRES_PASSWORD=bqlookup_password
-      - POSTGRES_DB=bqlookup
+      - POSTGRES_USER=bq_metadata
+      - POSTGRES_PASSWORD=bq_metadata_password
+      - POSTGRES_DB=bq_metadata
     ports:
       - "5432:5432"
     restart: unless-stopped

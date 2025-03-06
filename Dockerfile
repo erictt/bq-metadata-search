@@ -22,7 +22,7 @@ EXPOSE 8000
 
 # Set environment variables
 ENV PYTHONPATH=/app
-ENV DATABASE_URL=postgresql://bqlookup:bqlookup_password@db:5432/bqlookup
+ENV DATABASE_URL=postgresql://bq_metadata:bq_metadata_password@db:5432/bq_metadata
 
 # Wait for PostgreSQL to be ready before starting the app
 COPY scripts/wait-for-db.sh /wait-for-db.sh

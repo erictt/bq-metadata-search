@@ -7,7 +7,7 @@ host="db"
 port="5432"
 shift
 
-until PGPASSWORD=bqlookup_password psql -h "$host" -p "$port" -U "bqlookup" -d "bqlookup" -c '\q'; do
+until PGPASSWORD=bq_metadata_password psql -h "$host" -p "$port" -U "bq_metadata" -d "bq_metadata" -c '\q'; do
   >&2 echo "PostgreSQL is unavailable - sleeping"
   sleep 1
 done

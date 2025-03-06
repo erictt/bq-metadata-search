@@ -99,16 +99,16 @@ The application will be available at http://localhost:8000
 You can connect to the PostgreSQL database using:
 
 ```
-docker-compose exec db psql -U bqlookup -d bqlookup
+docker-compose exec db psql -U bq_metadata -d bq_metadata
 ```
 
 Or from your host machine:
 
 ```
-psql -h localhost -p 5432 -U bqlookup -d bqlookup
+psql -h localhost -p 5432 -U bq_metadata -d bq_metadata
 ```
 
-Password: `bqlookup_password`
+Password: `bq_metadata_password`
 
 ## Using the Web Interface
 
