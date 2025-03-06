@@ -2,7 +2,8 @@
 
 # Setup environment
 setup:
-	pip install -r requirements.txt
+	pip install uv
+	uv pip install -e .
 
 # Run the application
 run:

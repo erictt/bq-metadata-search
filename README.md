@@ -35,9 +35,10 @@ The easiest way to get started is using Docker:
 ### Manual Setup
 
 1. Clone this repository
-2. Install dependencies:
+2. Install uv and dependencies:
    ```
-   pip install -r requirements.txt
+   pip install uv
+   uv pip install -e .
    ```
 3. Configure your GCP credentials:
    ```
