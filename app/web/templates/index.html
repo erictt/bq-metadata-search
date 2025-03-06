@@ -2,36 +2,189 @@
 
 {% block title %}BigQuery Metadata Search{% endblock %}
 
+{% block scripts %}
+<script src="/static/scripts.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-12">
         <h1 class="metadata-header">BigQuery Metadata Search</h1>
         
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Search Metadata</h5>
+        <div class="card search-form">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="searchTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if search_mode != 'field' %}active{% endif %}" id="fuzzy-tab" data-bs-toggle="tab" data-bs-target="#fuzzy" type="button" role="tab" aria-controls="fuzzy" aria-selected="{% if search_mode != 'field' %}true{% else %}false{% endif %}">Fuzzy Search</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if search_mode == 'field' %}active{% endif %}" id="field-tab" data-bs-toggle="tab" data-bs-target="#field" type="button" role="tab" aria-controls="field" aria-selected="{% if search_mode == 'field' %}true{% else %}false{% endif %}">Advanced Search</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content pt-3" id="searchTabsContent">
+                    <!-- Fuzzy Search Tab -->
+                    <div class="tab-pane fade {% if search_mode != 'field' %}show active{% endif %}" id="fuzzy" role="tabpanel" aria-labelledby="fuzzy-tab">
+                        <form action="/" method="get">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="q" class="form-label">Search Query</label>
+                                        <input type="text" class="form-control" id="q" name="q" value="{{ query or '' }}" placeholder="Enter search terms...">
+                                        <div class="form-text">Search across all metadata (names, descriptions, types)</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="project_id" class="form-label">Project</label>
+                                        <select class="form-select" id="project_id" name="project_id">
+                                            <option value="">All Projects</option>
+                                            {% for project in projects %}
+                                                <option value="{{ project }}" {% if project_id == project %}selected{% endif %}>{{ project }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="search_mode" value="fuzzy">
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="card-body">
-                        <p>Search for tables, fields, or descriptions across all BigQuery projects.</p>
-                        <a href="/search" class="btn btn-primary">Search</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Advanced Search</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>Use advanced filters to find specific metadata components.</p>
-                        <a href="/advanced-search" class="btn btn-primary">Advanced Search</a>
+                    
+                    <!-- Advanced Search Tab -->
+                    <div class="tab-pane fade {% if search_mode == 'field' %}show active{% endif %}" id="field" role="tabpanel" aria-labelledby="field-tab">
+                        <form action="/" method="get">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="{{ name or '' }}" placeholder="Search by name">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description</label>
+                                        <input type="text" class="form-control" id="description" name="description" value="{{ description or '' }}" placeholder="Search by description">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Type</label>
+                                        <input type="text" class="form-control" id="type" name="type" value="{{ type or '' }}" placeholder="e.g., TABLE, VIEW, STRING">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="field_project_id" class="form-label">Project</label>
+                                        <select class="form-select" id="field_project_id" name="project_id">
+                                            <option value="">All Projects</option>
+                                            {% for project in projects %}
+                                                <option value="{{ project }}" {% if project_id == project %}selected{% endif %}>{{ project }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="dataset_id" class="form-label">Dataset</label>
+                                        <select class="form-select" id="dataset_id" name="dataset_id">
+                                            <option value="">All Datasets</option>
+                                            {% for dataset in datasets %}
+                                                <option value="{{ dataset.id }}" {% if dataset_id == dataset.id %}selected{% endif %}>{{ dataset.id }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="search_mode" value="field">
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+        
+        {% if search_performed %}
+            <h2>Search Results</h2>
+            
+            <!-- Datasets results -->
+            {% if results.datasets %}
+                <h3>Datasets ({{ results.datasets|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for dataset in results.datasets %}
+                        <a href="/dataset/{{ dataset.project_id }}/{{ dataset.id }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ dataset.id }}</h5>
+                            <small class="text-muted">{{ dataset.project_id }}</small>
+                            {% if dataset.friendly_name %}
+                                <h6 class="mb-1">{{ dataset.friendly_name }}</h6>
+                            {% endif %}
+                            {% if dataset.description %}
+                                <p class="mb-1 description">{{ dataset.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Tables results -->
+            {% if results.tables %}
+                <h3>Tables ({{ results.tables|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for table in results.tables %}
+                        <a href="/table/{{ table.project_id }}/{{ table.dataset_id }}/{{ table.id }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ table.id }}</h5>
+                                {% if table.table_type %}
+                                    <span class="badge bg-secondary badge-table-type">{{ table.table_type }}</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">{{ table.project_id }}.{{ table.dataset_id }}</small>
+                            {% if table.friendly_name %}
+                                <h6 class="mb-1">{{ table.friendly_name }}</h6>
+                            {% endif %}
+                            {% if table.description %}
+                                <p class="mb-1 description">{{ table.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Fields results -->
+            {% if results.fields %}
+                <h3>Fields ({{ results.fields|length }})</h3>
+                <div class="list-group mb-4">
+                    {% for field in results.fields %}
+                        <a href="/table/{{ field.project_id }}/{{ field.dataset_id }}/{{ field.table_id }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ field.name }}</h5>
+                            <small class="text-muted">{{ field.project_id }}.{{ field.dataset_id }}.{{ field.table_id }}</small>
+                            <div class="d-flex mt-1">
+                                <span class="badge bg-primary me-2">{{ field.field_type }}</span>
+                                <span class="badge bg-secondary">{{ field.mode }}</span>
+                            </div>
+                            {% if field.description %}
+                                <p class="mb-1 mt-2 description">{{ field.description }}</p>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if not results.datasets and not results.tables and not results.fields %}
+                <div class="alert alert-info">
+                    No results found for the specified criteria.
+                </div>
+            {% endif %}
+        {% endif %}
         
         <h2>Available Projects</h2>
         

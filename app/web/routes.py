@@ -25,12 +25,76 @@ search_engine = MetadataSearch()
 
 
 @web_router.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    """Homepage."""
+async def index(
+    request: Request,
+    # Common parameters
+    project_id: Annotated[str | None, Query(description="Project ID to filter by")] = None,
+    dataset_id: Annotated[str | None, Query(description="Dataset ID to filter by")] = None,
+    # Search mode
+    search_mode: Annotated[str | None, Query(description="Search mode (fuzzy or field)")] = None,
+    # Fuzzy search parameters
+    q: Annotated[str | None, Query(description="Search query for fuzzy search")] = None,
+    # Field-specific search parameters
+    name: Annotated[str | None, Query(description="Name to search for")] = None,
+    description: Annotated[str | None, Query(description="Description to search for")] = None,
+    type: Annotated[str | None, Query(description="Type to filter by")] = None,
+):
+    """Homepage with integrated search functionality."""
     projects = db.get_projects()
+    datasets = []
+    results = {}
+    search_performed = False
+    
+    # Get datasets for the project if specified
+    if project_id:
+        datasets = db.get_datasets(project_id=project_id)
+    
+    # Handle fuzzy search mode
+    if search_mode == "fuzzy" and q:
+        results = search_engine.search(query=q, project_id=project_id)
+        search_performed = True
+    
+    # Handle field-specific search mode
+    elif search_mode == "field" and (name or description or type):
+        terms = {"name": name or "", "description": description or "", "type": type or ""}
+        results = search_engine.advanced_search(
+            terms=terms, 
+            project_id=project_id,
+            dataset_id=dataset_id
+        )
+        search_performed = True
+    
+    # For backward compatibility or direct access without search_mode
+    elif q:
+        # If we have a general query but no mode, default to fuzzy search
+        results = search_engine.search(query=q, project_id=project_id)
+        search_performed = True
+    elif name or description or type:
+        # If we have field parameters but no mode, default to field search
+        terms = {"name": name or "", "description": description or "", "type": type or ""}
+        results = search_engine.advanced_search(
+            terms=terms, 
+            project_id=project_id,
+            dataset_id=dataset_id
+        )
+        search_performed = True
 
     return templates.TemplateResponse(
-        "index.html", {"request": request, "projects": projects}
+        "index.html", 
+        {
+            "request": request, 
+            "projects": projects,
+            "datasets": datasets,
+            "query": q,
+            "project_id": project_id,
+            "name": name,
+            "description": description,
+            "type": type,
+            "dataset_id": dataset_id,
+            "search_mode": search_mode,
+            "results": results,
+            "search_performed": search_performed
+        }
     )
 
 

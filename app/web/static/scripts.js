@@ -42,11 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle project selection in advanced search
-    const projectSelect = document.getElementById('project_id');
+    // Handle project selection for dataset dropdown in field-specific search
+    const fieldProjectSelect = document.getElementById('field_project_id');
     const datasetSelect = document.getElementById('dataset_id');
     
-    if (projectSelect && datasetSelect) {
+    if (fieldProjectSelect && datasetSelect) {
         // Function to update datasets dropdown
         const updateDatasets = async (projectId) => {
             // Clear current options except the first one
@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         // Update datasets when project changes
-        projectSelect.addEventListener('change', function() {
+        fieldProjectSelect.addEventListener('change', function() {
             console.log('Project changed to:', this.value);
             updateDatasets(this.value);
         });
         
         // Initial update if a project is already selected
-        if (projectSelect.value) {
-            updateDatasets(projectSelect.value);
+        if (fieldProjectSelect.value) {
+            updateDatasets(fieldProjectSelect.value);
         }
     }
 });
