@@ -74,9 +74,20 @@ See [USAGE.md](USAGE.md) for detailed usage instructions.
 - **API**: FastAPI-based REST API
 - **Web**: User interface for searching and browsing metadata
 
-## Development
+## Future Enhancements
 
-See [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) for detailed information about the project architecture and development.
+Potential improvements for future versions:
+
+1. **Authentication & Authorization**: Add user authentication and role-based access control
+2. **Scheduled Extraction**: Automatically update metadata on a schedule
+3. **Metadata Diff**: Track changes in metadata over time
+4. **Tagging System**: Allow users to add custom tags to tables and fields
+5. **Data Lineage**: Track relationships between tables
+6. **Advanced Visualization**: Add visualization of table relationships
+7. **Search History**: Store and suggest recent searches
+8. **Export Functionality**: Export search results in various formats
+9. **Elasticsearch Integration**: For more powerful search capabilities
+10. **Schema Evolution**: Track changes to table schemas over time
 
 ## License
 
